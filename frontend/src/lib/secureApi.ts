@@ -1450,10 +1450,12 @@ export class SecureAPIClient {
 
   // ============= DASHBOARD API =============
   /**
-   * Get dashboard summary with optional simulation header
+   * Get a monthly or all-time dashboard summary with optional simulation header
    */
-  async getDashboardSummary(propertyId: string, options?: { simulatedTenant?: string, timestamp?: number }) {
+  async getDashboardSummary(propertyId: string, month?: number, year?: number, options?: { simulatedTenant?: string, timestamp?: number }) {
     const queryParams = new URLSearchParams({ property_id: propertyId });
+    if (month !== undefined) queryParams.append('month', month.toString());
+    if (year !== undefined) queryParams.append('year', year.toString());
     if (options?.timestamp) {
       queryParams.append('_t', options.timestamp.toString());
     }

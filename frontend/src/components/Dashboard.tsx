@@ -11,6 +11,8 @@ const PROPERTIES = [
 
 const Dashboard: React.FC = () => {
   const [selectedProperty, setSelectedProperty] = useState('prop-001');
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [year, month] = selectedMonth ? selectedMonth.split('-').map(Number) : [];
 
   return (
     <div className="p-4 lg:p-6 min-h-full">
@@ -23,10 +25,30 @@ const Dashboard: React.FC = () => {
               <div>
                 <h2 className="text-lg lg:text-xl font-medium text-gray-900 mb-2">Revenue Overview</h2>
                 <p className="text-sm lg:text-base text-gray-600">
-                  Monthly performance insights for your properties
+                  {selectedMonth ? 'Monthly performance insights for your properties' : 'All-time revenue for your properties'}
                 </p>
               </div>
               
+              <div className="flex flex-col sm:items-end">
+                <label htmlFor="revenue-month" className="text-xs font-medium text-gray-700 mb-1">Reporting Month</label>
+                <input
+                  id="revenue-month"
+                  type="month"
+                  min="0001-01"
+                  max="9998-12"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="block w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setSelectedMonth('')}
+                  disabled={!selectedMonth}
+                  className="mt-1 text-xs text-gray-600 underline disabled:opacity-50"
+                >
+                  Clear (all time)
+                </button>
+              </div>
               {/* Property Selector */}
               <div className="flex flex-col sm:items-end">
                 <label className="text-xs font-medium text-gray-700 mb-1">Select Property</label>
@@ -46,7 +68,11 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <RevenueSummary propertyId={selectedProperty} />
+            <RevenueSummary
+              propertyId={selectedProperty}
+              month={month}
+              year={year}
+            />
           </div>
         </div>
       </div>

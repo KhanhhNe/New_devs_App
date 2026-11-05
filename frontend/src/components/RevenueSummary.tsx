@@ -10,11 +10,13 @@ interface RevenueData {
 
 interface RevenueSummaryProps {
     propertyId?: string;
+    month?: number;
+    year?: number;
     debugTenant?: string; 
     showRaw?: boolean;
 }
 
-export const RevenueSummary: React.FC<RevenueSummaryProps> = ({ propertyId = 'prop-001', debugTenant, showRaw }) => {
+export const RevenueSummary: React.FC<RevenueSummaryProps> = ({ propertyId = 'prop-001', month, year, debugTenant, showRaw }) => {
     const [data, setData] = useState<RevenueData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -22,26 +24,31 @@ export const RevenueSummary: React.FC<RevenueSummaryProps> = ({ propertyId = 'pr
     const activeTenant = debugTenant || 'candidate';
 
     useEffect(() => {
+        let cancelled = false;
         const fetchRevenue = async () => {
             setLoading(true);
             try {
                 // Use SecureAPI to handle authentication automatically
                 // We pass the simulatedTenant option which SecureAPI will attach as a header
-                const response = await SecureAPI.getDashboardSummary(propertyId, {
+                const response = await SecureAPI.getDashboardSummary(propertyId, month, year, {
                     simulatedTenant: activeTenant,
                     timestamp: Date.now()
                 });
-                setData(response);
+                if (!cancelled) {
+                    setError('');
+                    setData(response);
+                }
             } catch (err) {
-                setError('Failed to load revenue data');
+                if (!cancelled) setError('Failed to load revenue data');
                 console.error(err);
             } finally {
-                setLoading(false);
+                if (!cancelled) setLoading(false);
             }
         };
 
         fetchRevenue();
-    }, [propertyId, activeTenant]);
+        return () => { cancelled = true; };
+    }, [propertyId, activeTenant, month, year]);
 
     if (loading) {
         return (
